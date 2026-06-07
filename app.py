@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language texts (fixed triple‑quote issue)
+# Language texts
 TEXTS = {
     "English": {
         "title": "🏥 HealthCoach AI – FHIR Practice Arena",
@@ -130,7 +130,7 @@ Escriba su solución en Python. Use el módulo `datetime`.
         "ai_thinking": "La IA está analizando su enfoque...",
         "ai_error": "Error IA: {}",
         "sidebar_howto": "Cómo usar",
-        "howto_list": ["Vea la introducción en video", "Resuelva el problema FHIR", "Pida consejos al entrenador IA", "Prepárese para roles de interoperabilidad"],
+        "howto_list": ["Vea la introducción en video", "Resuelva el problema FHIR", "Pida consejos al entrenador IA", "¡Participe en roles de interoperabilidad!"],
         "footer": "© 2026 GlobalInternet.py – IA para educación FHIR",
         "security_badge": "🔐 Cifrado de extremo a extremo activo",
         "security_caption": "Todos los datos están seguros y anonimizados",
@@ -215,7 +215,6 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 🛡️ Global Security Shield active")
-    # Invisible API key – stored only in secrets, not displayed
     st.markdown(f'<div class="security-badge">{texts["security_badge"]}</div>', unsafe_allow_html=True)
     st.caption(texts["security_caption"])
     
@@ -239,7 +238,7 @@ st.title(texts["title"])
 st.markdown(f"### {texts['subtitle']}")
 st.markdown("---")
 
-# ================== GROQ CLIENT (API key from secrets) ==================
+# ================== GROQ CLIENT ==================
 if "GROQ_API_KEY" not in st.secrets:
     st.error("⚠️ Missing Groq API key. Add `GROQ_API_KEY` to your Streamlit secrets.")
     st.stop()
@@ -269,12 +268,12 @@ Keep your answer concise and helpful. Respond in {language}."""
 # ================== TABS ==================
 tab1, tab2, tab3 = st.tabs([texts["video_tab"], texts["practice_tab"], texts["ai_tab"]])
 
-# --- Tab 1: Video Introduction ---
+# --- Tab 1: Video Introduction (with your narrated video) ---
 with tab1:
     st.markdown(f"### {texts['video_title']}")
     st.markdown(texts['video_desc'])
-    # Replace with your actual narrated video link (use dl=1)
-    video_link = "https://www.dropbox.com/scl/fi/example_healthcoach.mp4?dl=1"
+    # Your HealthCoach AI narrated video link (corrected to dl=1)
+    video_link = "https://www.dropbox.com/scl/fi/9ekhxqv9ogne6n3a57lhn/Healthcare-Coach-AI.mp4?rlkey=xjhl0c85nqwfqnpuisdalo1lb&st=vz69r3n7&dl=1"
     st.video(video_link)
     st.caption("If the video does not play, click the three dots → Download to save it locally.")
 
