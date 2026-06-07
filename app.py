@@ -268,12 +268,12 @@ Keep your answer concise and helpful. Respond in {language}."""
 # ================== TABS ==================
 tab1, tab2, tab3 = st.tabs([texts["video_tab"], texts["practice_tab"], texts["ai_tab"]])
 
-# --- Tab 1: Video Introduction (with your narrated video) ---
+# --- Tab 1: Video Introduction (with your new narrated video) ---
 with tab1:
     st.markdown(f"### {texts['video_title']}")
     st.markdown(texts['video_desc'])
-    # Your HealthCoach AI narrated video link (corrected to dl=1)
-    video_link = "https://www.dropbox.com/scl/fi/9ekhxqv9ogne6n3a57lhn/Healthcare-Coach-AI.mp4?rlkey=xjhl0c85nqwfqnpuisdalo1lb&st=vz69r3n7&dl=1"
+    # Your narrated HealthCoach AI video link (dl=1 for direct streaming)
+    video_link = "https://www.dropbox.com/scl/fi/bjne1bml85ce8k92ljrbk/HealthCoach-AI_demo_narrated-1.mp4?rlkey=z5cfob5jzbdwynvxtvgq151ac&st=6pge3b1x&dl=1"
     st.video(video_link)
     st.caption("If the video does not play, click the three dots → Download to save it locally.")
 
