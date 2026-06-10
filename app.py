@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language texts
+# Language texts (pricing removed)
 TEXTS = {
     "English": {
         "title": "🏥 HealthCoach AI – FHIR Practice Arena",
@@ -47,13 +47,7 @@ Write your solution in Python. Use the `datetime` module.
         "howto_list": ["Watch the video intro", "Solve the FHIR practice problem", "Ask AI Coach for feedback", "Prepare for interoperability roles"],
         "footer": "© 2026 GlobalInternet.py – AI for FHIR Education",
         "security_badge": "🔐 End‑to‑end encryption active",
-        "security_caption": "All data is secured and anonymized",
-        "price_title": "Our Services",
-        "price_list": [
-            "Full source code – $499 USD",
-            "Source + customization – $1,499 USD",
-            "Enterprise plan – $2,999 USD"
-        ]
+        "security_caption": "All data is secured and anonymized"
     },
     "Français": {
         "title": "🏥 HealthCoach AI – Arène FHIR",
@@ -90,13 +84,7 @@ On vous donne une ressource Patient FHIR au format JSON. Écrivez une fonction q
         "howto_list": ["Regardez l'intro vidéo", "Résolvez le problème FHIR", "Demandez des conseils au coach IA", "Préparez-vous aux rôles d'interopérabilité"],
         "footer": "© 2026 GlobalInternet.py – IA pour la formation FHIR",
         "security_badge": "🔐 Chiffrement de bout en bout actif",
-        "security_caption": "Toutes les données sont sécurisées et anonymisées",
-        "price_title": "Nos services",
-        "price_list": [
-            "Code source complet – 499 USD",
-            "Code + personnalisation – 1 499 USD",
-            "Formule Entreprise – 2 999 USD"
-        ]
+        "security_caption": "Toutes les données sont sécurisées et anonymisées"
     },
     "Español": {
         "title": "🏥 HealthCoach AI – Arena FHIR",
@@ -133,13 +121,7 @@ Escriba su solución en Python. Use el módulo `datetime`.
         "howto_list": ["Vea la introducción en video", "Resuelva el problema FHIR", "Pida consejos al entrenador IA", "¡Participe en roles de interoperabilidad!"],
         "footer": "© 2026 GlobalInternet.py – IA para educación FHIR",
         "security_badge": "🔐 Cifrado de extremo a extremo activo",
-        "security_caption": "Todos los datos están seguros y anonimizados",
-        "price_title": "Nuestros servicios",
-        "price_list": [
-            "Código fuente completo – $499 USD",
-            "Código + personalización – $1,499 USD",
-            "Plan Empresarial – $2,999 USD"
-        ]
+        "security_caption": "Todos los datos están seguros y anonimizados"
     }
 }
 
@@ -224,11 +206,6 @@ with st.sidebar:
     st.markdown("✉️ deslandes78@gmail.com")
     st.markdown("---")
     
-    st.markdown(f"### 💰 {texts['price_title']}")
-    for item in texts["price_list"]:
-        st.markdown(f"- {item}")
-    st.markdown("---")
-    
     st.markdown(f"### {texts['sidebar_howto']}")
     for i, step in enumerate(texts["howto_list"], 1):
         st.markdown(f"{i}. {step}")
@@ -268,11 +245,10 @@ Keep your answer concise and helpful. Respond in {language}."""
 # ================== TABS ==================
 tab1, tab2, tab3 = st.tabs([texts["video_tab"], texts["practice_tab"], texts["ai_tab"]])
 
-# --- Tab 1: Video Introduction (with your new narrated video) ---
+# --- Tab 1: Video Introduction ---
 with tab1:
     st.markdown(f"### {texts['video_title']}")
     st.markdown(texts['video_desc'])
-    # Your narrated HealthCoach AI video link (dl=1 for direct streaming)
     video_link = "https://www.dropbox.com/scl/fi/bjne1bml85ce8k92ljrbk/HealthCoach-AI_demo_narrated-1.mp4?rlkey=z5cfob5jzbdwynvxtvgq151ac&st=6pge3b1x&dl=1"
     st.video(video_link)
     st.caption("If the video does not play, click the three dots → Download to save it locally.")
@@ -296,7 +272,6 @@ with tab2:
                 age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
                 st.success(texts["result_correct"].format(age))
         except json.JSONDecodeError:
-            # assume direct birth date string
             try:
                 birth_date = datetime.strptime(user_input_data.strip(), "%Y-%m-%d")
                 today = datetime.today()
