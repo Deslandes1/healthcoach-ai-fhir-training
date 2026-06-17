@@ -188,6 +188,7 @@ st.markdown("""
 # ================== SIDEBAR ==================
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/Deslandes1/Color-Software-Game/main/Gesner%20Deslandes.png", width=80)
+    st.markdown("### **Gesner Deslandes**")  # <-- Added name here
     st.markdown("## **GlobalInternet.py**")
     st.markdown("**HealthCoach AI**")
     st.markdown("---")
