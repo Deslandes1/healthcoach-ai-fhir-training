@@ -4,19 +4,27 @@ from groq import Groq
 from datetime import datetime
 import json
 
-# ================== SUPABASE CLIENT (optional) ==================
+# ================== SUPABASE CLIENT (flexible) ==================
 try:
     from supabase import create_client, Client
 except ImportError:
     Client = None
 
 def get_supabase():
+    # Try flat keys first
     supabase_url = st.secrets.get("SUPABASE_URL", "")
     supabase_key = st.secrets.get("SUPABASE_KEY", "")
+    
+    # If flat keys are empty, try nested under "supabase"
+    if not supabase_url and "supabase" in st.secrets:
+        supabase_url = st.secrets["supabase"].get("url", "")
+        supabase_key = st.secrets["supabase"].get("key", "")
+    
     if supabase_url and supabase_key and Client:
         try:
             return create_client(supabase_url, supabase_key)
-        except Exception:
+        except Exception as e:
+            st.error(f"Supabase connection error: {e}")
             return None
     return None
 
@@ -30,7 +38,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language texts
+# Language texts (unchanged)
 TEXTS = {
     "English": {
         "title": "🏥 HealthCoach AI – FHIR Practice Arena",
@@ -75,7 +83,7 @@ Write your solution in Python. Use the `datetime` module.
         "doc_start": "How to Start",
         "doc_start_text": "1. Clone the repository: git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Install dependencies: pip install -r requirements.txt (or pip install streamlit groq supabase)\n3. Create a .streamlit/secrets.toml file with your Groq API key (optional):\n   GROQ_API_KEY = \"your-api-key-here\"\n   SUPABASE_URL = \"your-supabase-url\"\n   SUPABASE_KEY = \"your-supabase-key\"\n4. Run the app: streamlit run app.py\n5. The app will open in your browser.",
         "doc_test": "How to Test",
-        "doc_test_text": "1. Watch the video introduction to understand the platform.\n2. Go to the Practice Problem tab and enter a FHIR Patient JSON or a date.\n3. Click 'Run & Check Solution' to see the calculated age.\n4. Go to the AI Coach tab, paste your code or describe your algorithm, and click 'Get AI Feedback' to receive constructive guidance.\n5. The AI coach will analyze your approach and suggest improvements. If no Groq key is set, a fallback response is provided.",
+        "doc_test_text": "1. Watch the video introduction to understand the platform.\n2. Go to the Practice Problem tab and enter a FHIR Patient JSON or a date.\n3. Click 'Run & Check Solution' to see the calculated age.\n4. Go to the AI Coach tab, paste your code or describe your algorithm, and click 'Get AI Feedback' to receive constructive guidance.\n5. If no Groq key is set, a fallback response is provided.",
         "doc_demo": "Live Demo",
         "doc_demo_text": "You can test the fully functional app at:",
         "doc_demo_link": "https://healthcoach-ai-fhir-training-uzdeefhyupvfjkywurau6w.streamlit.app/"
@@ -257,11 +265,19 @@ with st.sidebar:
     texts = TEXTS[language]
     
     st.markdown("---")
-    # Show Supabase status
     if SUPABASE_AVAILABLE:
         st.success("✅ Supabase connected")
     else:
-        st.info("ℹ️ Supabase not configured (optional)")
+        st.warning("⚠️ Supabase not configured")
+        # Debug expander to see what keys are present
+        with st.expander("🔍 Debug: Secrets keys"):
+            st.write("Keys found:", list(st.secrets.keys()))
+            if "SUPABASE_URL" in st.secrets:
+                st.write("SUPABASE_URL: present")
+            if "SUPABASE_KEY" in st.secrets:
+                st.write("SUPABASE_KEY: present")
+            if "supabase" in st.secrets:
+                st.write("supabase section: present")
     
     st.markdown("### 🛡️ Global Security Shield active")
     st.markdown(f'<div class="security-badge">{texts["security_badge"]}</div>', unsafe_allow_html=True)
@@ -294,7 +310,6 @@ else:
 # ================== AI FEEDBACK (with fallback) ==================
 def get_ai_feedback(user_input, language):
     if not GROQ_AVAILABLE:
-        # Fallback: provide a generic constructive response
         return (
             "⚠️ **Groq API key is not configured.**\n\n"
             "In a real deployment, the AI would analyze your code and provide detailed feedback on correctness, edge cases, and FHIR best practices.\n\n"
@@ -320,7 +335,6 @@ Keep your answer concise and helpful. Respond in {language}."""
             max_tokens=800
         )
         result = response.choices[0].message.content.strip()
-        # Optionally store in Supabase
         if SUPABASE_AVAILABLE:
             try:
                 supabase.table("feedback_log").insert({
