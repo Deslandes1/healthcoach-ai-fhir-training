@@ -2,6 +2,26 @@ import streamlit as st
 import re
 from groq import Groq
 from datetime import datetime
+import json
+
+# ================== SUPABASE CLIENT (optional) ==================
+try:
+    from supabase import create_client, Client
+except ImportError:
+    Client = None
+
+def get_supabase():
+    supabase_url = st.secrets.get("SUPABASE_URL", "")
+    supabase_key = st.secrets.get("SUPABASE_KEY", "")
+    if supabase_url and supabase_key and Client:
+        try:
+            return create_client(supabase_url, supabase_key)
+        except Exception:
+            return None
+    return None
+
+supabase = get_supabase()
+SUPABASE_AVAILABLE = supabase is not None
 
 # ================== CONFIGURATION ==================
 st.set_page_config(
@@ -51,11 +71,11 @@ Write your solution in Python. Use the `datetime` module.
         "security_caption": "All data is secured and anonymized",
         "doc_title": "Complete Documentation",
         "doc_prereq": "Prerequisites",
-        "doc_prereq_text": "- Python 3.8 or higher\n- Required Python packages: streamlit, groq, datetime (built-in)\n- A Groq API key (sign up at groq.com)\n- Internet connection for video streaming",
+        "doc_prereq_text": "- Python 3.8 or higher\n- Required Python packages: streamlit, groq, datetime (built-in)\n- A Groq API key (optional – demo works without it)\n- Internet connection for video streaming",
         "doc_start": "How to Start",
-        "doc_start_text": "1. Clone the repository: git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Install dependencies: pip install -r requirements.txt (or pip install streamlit groq)\n3. Create a .streamlit/secrets.toml file with your Groq API key:\n   GROQ_API_KEY = \"your-api-key-here\"\n4. Run the app: streamlit run app.py\n5. The app will open in your browser.",
+        "doc_start_text": "1. Clone the repository: git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Install dependencies: pip install -r requirements.txt (or pip install streamlit groq supabase)\n3. Create a .streamlit/secrets.toml file with your Groq API key (optional):\n   GROQ_API_KEY = \"your-api-key-here\"\n   SUPABASE_URL = \"your-supabase-url\"\n   SUPABASE_KEY = \"your-supabase-key\"\n4. Run the app: streamlit run app.py\n5. The app will open in your browser.",
         "doc_test": "How to Test",
-        "doc_test_text": "1. Watch the video introduction to understand the platform.\n2. Go to the Practice Problem tab and enter a FHIR Patient JSON or a date.\n3. Click 'Run & Check Solution' to see the calculated age.\n4. Go to the AI Coach tab, paste your code or describe your algorithm, and click 'Get AI Feedback' to receive constructive guidance.\n5. The AI coach will analyze your approach and suggest improvements.",
+        "doc_test_text": "1. Watch the video introduction to understand the platform.\n2. Go to the Practice Problem tab and enter a FHIR Patient JSON or a date.\n3. Click 'Run & Check Solution' to see the calculated age.\n4. Go to the AI Coach tab, paste your code or describe your algorithm, and click 'Get AI Feedback' to receive constructive guidance.\n5. The AI coach will analyze your approach and suggest improvements. If no Groq key is set, a fallback response is provided.",
         "doc_demo": "Live Demo",
         "doc_demo_text": "You can test the fully functional app at:",
         "doc_demo_link": "https://healthcoach-ai-fhir-training-uzdeefhyupvfjkywurau6w.streamlit.app/"
@@ -99,11 +119,11 @@ On vous donne une ressource Patient FHIR au format JSON. Écrivez une fonction q
         "security_caption": "Toutes les données sont sécurisées et anonymisées",
         "doc_title": "Documentation complète",
         "doc_prereq": "Prérequis",
-        "doc_prereq_text": "- Python 3.8 ou supérieur\n- Paquets Python requis : streamlit, groq, datetime (intégré)\n- Une clé API Groq (inscrivez-vous sur groq.com)\n- Connexion Internet pour le streaming vidéo",
+        "doc_prereq_text": "- Python 3.8 ou supérieur\n- Paquets Python requis : streamlit, groq, datetime (intégré)\n- Une clé API Groq (optionnelle – la démo fonctionne sans)\n- Connexion Internet pour le streaming vidéo",
         "doc_start": "Comment démarrer",
-        "doc_start_text": "1. Clonez le dépôt : git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Installez les dépendances : pip install -r requirements.txt (ou pip install streamlit groq)\n3. Créez un fichier .streamlit/secrets.toml avec votre clé API Groq :\n   GROQ_API_KEY = \"votre-clé-api-ici\"\n4. Lancez l'application : streamlit run app.py\n5. L'application s'ouvrira dans votre navigateur.",
+        "doc_start_text": "1. Clonez le dépôt : git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Installez les dépendances : pip install -r requirements.txt (ou pip install streamlit groq supabase)\n3. Créez un fichier .streamlit/secrets.toml avec votre clé API Groq (optionnelle) :\n   GROQ_API_KEY = \"votre-clé-api-ici\"\n   SUPABASE_URL = \"votre-url-supabase\"\n   SUPABASE_KEY = \"votre-clé-supabase\"\n4. Lancez l'application : streamlit run app.py\n5. L'application s'ouvrira dans votre navigateur.",
         "doc_test": "Comment tester",
-        "doc_test_text": "1. Regardez la vidéo d'introduction pour comprendre la plateforme.\n2. Allez dans l'onglet Problème pratique et entrez un JSON Patient FHIR ou une date.\n3. Cliquez sur 'Exécuter et vérifier' pour voir l'âge calculé.\n4. Allez dans l'onglet Coach IA, collez votre code ou décrivez votre algorithme, et cliquez sur 'Obtenir un feedback IA' pour recevoir des conseils constructifs.\n5. Le coach IA analysera votre approche et suggérera des améliorations.",
+        "doc_test_text": "1. Regardez la vidéo d'introduction pour comprendre la plateforme.\n2. Allez dans l'onglet Problème pratique et entrez un JSON Patient FHIR ou une date.\n3. Cliquez sur 'Exécuter et vérifier' pour voir l'âge calculé.\n4. Allez dans l'onglet Coach IA, collez votre code ou décrivez votre algorithme, et cliquez sur 'Obtenir un feedback IA' pour recevoir des conseils constructifs.\n5. Si aucune clé Groq n'est définie, une réponse de repli est fournie.",
         "doc_demo": "Démo en direct",
         "doc_demo_text": "Vous pouvez tester l'application entièrement fonctionnelle à l'adresse :",
         "doc_demo_link": "https://healthcoach-ai-fhir-training-uzdeefhyupvfjkywurau6w.streamlit.app/"
@@ -147,11 +167,11 @@ Escriba su solución en Python. Use el módulo `datetime`.
         "security_caption": "Todos los datos están seguros y anonimizados",
         "doc_title": "Documentación completa",
         "doc_prereq": "Requisitos previos",
-        "doc_prereq_text": "- Python 3.8 o superior\n- Paquetes Python necesarios: streamlit, groq, datetime (incluido)\n- Una clave API de Groq (regístrese en groq.com)\n- Conexión a Internet para la transmisión de video",
+        "doc_prereq_text": "- Python 3.8 o superior\n- Paquetes Python necesarios: streamlit, groq, datetime (incluido)\n- Una clave API de Groq (opcional – la demo funciona sin ella)\n- Conexión a Internet para la transmisión de video",
         "doc_start": "Cómo empezar",
-        "doc_start_text": "1. Clone el repositorio: git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Instale las dependencias: pip install -r requirements.txt (o pip install streamlit groq)\n3. Cree un archivo .streamlit/secrets.toml con su clave API de Groq:\n   GROQ_API_KEY = \"su-clave-api-aquí\"\n4. Ejecute la aplicación: streamlit run app.py\n5. La aplicación se abrirá en su navegador.",
+        "doc_start_text": "1. Clone el repositorio: git clone https://github.com/Deslandes1/healthcoach-ai-fhir-training.git\n2. Instale las dependencias: pip install -r requirements.txt (o pip install streamlit groq supabase)\n3. Cree un archivo .streamlit/secrets.toml con su clave API de Groq (opcional):\n   GROQ_API_KEY = \"su-clave-api-aquí\"\n   SUPABASE_URL = \"su-url-supabase\"\n   SUPABASE_KEY = \"su-clave-supabase\"\n4. Ejecute la aplicación: streamlit run app.py\n5. La aplicación se abrirá en su navegador.",
         "doc_test": "Cómo probar",
-        "doc_test_text": "1. Vea el video de introducción para entender la plataforma.\n2. Vaya a la pestaña Problema práctico e ingrese un JSON Patient FHIR o una fecha.\n3. Haga clic en 'Ejecutar y verificar' para ver la edad calculada.\n4. Vaya a la pestaña Entrenador IA, pegue su código o describa su algoritmo y haga clic en 'Obtener retroalimentación IA' para recibir orientación constructiva.\n5. El entrenador IA analizará su enfoque y sugerirá mejoras.",
+        "doc_test_text": "1. Vea el video de introducción para entender la plataforma.\n2. Vaya a la pestaña Problema práctico e ingrese un JSON Patient FHIR o una fecha.\n3. Haga clic en 'Ejecutar y verificar' para ver la edad calculada.\n4. Vaya a la pestaña Entrenador IA, pegue su código o describa su algoritmo y haga clic en 'Obtener retroalimentación IA' para recibir orientación constructiva.\n5. Si no hay clave de Groq, se proporciona una respuesta alternativa.",
         "doc_demo": "Demo en vivo",
         "doc_demo_text": "Puede probar la aplicación completamente funcional en:",
         "doc_demo_link": "https://healthcoach-ai-fhir-training-uzdeefhyupvfjkywurau6w.streamlit.app/"
@@ -237,6 +257,12 @@ with st.sidebar:
     texts = TEXTS[language]
     
     st.markdown("---")
+    # Show Supabase status
+    if SUPABASE_AVAILABLE:
+        st.success("✅ Supabase connected")
+    else:
+        st.info("ℹ️ Supabase not configured (optional)")
+    
     st.markdown("### 🛡️ Global Security Shield active")
     st.markdown(f'<div class="security-badge">{texts["security_badge"]}</div>', unsafe_allow_html=True)
     st.caption(texts["security_caption"])
@@ -257,19 +283,33 @@ st.markdown(f"### {texts['subtitle']}")
 st.markdown("---")
 
 # ================== GROQ CLIENT ==================
-if "GROQ_API_KEY" not in st.secrets:
-    st.error("⚠️ Missing Groq API key. Add `GROQ_API_KEY` to your Streamlit secrets.")
-    st.stop()
-groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+if "GROQ_API_KEY" in st.secrets:
+    groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+    GROQ_AVAILABLE = True
+else:
+    groq_client = None
+    GROQ_AVAILABLE = False
+    st.warning("ℹ️ Groq API key not found. The AI Coach will use a fallback mode (no real AI feedback). To enable full AI capabilities, add GROQ_API_KEY to your secrets.")
 
-# ================== AI FEEDBACK ==================
+# ================== AI FEEDBACK (with fallback) ==================
 def get_ai_feedback(user_input, language):
-    system_prompt = f"""You are an expert FHIR and healthcare interoperability coach. The user has written code or an idea to calculate age from a FHIR Patient resource. Provide constructive feedback:
+    if not GROQ_AVAILABLE:
+        # Fallback: provide a generic constructive response
+        return (
+            "⚠️ **Groq API key is not configured.**\n\n"
+            "In a real deployment, the AI would analyze your code and provide detailed feedback on correctness, edge cases, and FHIR best practices.\n\n"
+            "**To enable the AI Coach, please add your Groq API key to `.streamlit/secrets.toml`.**\n\n"
+            "Here is a sample improvement you could consider:\n"
+            "- Add error handling for missing 'birthDate' field.\n"
+            "- Validate the date format before parsing.\n"
+            "- Use a try-except block for JSON parsing."
+        )
+    try:
+        system_prompt = f"""You are an expert FHIR and healthcare interoperability coach. The user has written code or an idea to calculate age from a FHIR Patient resource. Provide constructive feedback:
 - Check correctness and edge cases (invalid dates, missing fields).
 - Suggest improvements (error handling, parsing JSON).
 - Explain FHIR best practices if relevant.
 Keep your answer concise and helpful. Respond in {language}."""
-    try:
         response = groq_client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
@@ -279,7 +319,19 @@ Keep your answer concise and helpful. Respond in {language}."""
             temperature=0.3,
             max_tokens=800
         )
-        return response.choices[0].message.content.strip()
+        result = response.choices[0].message.content.strip()
+        # Optionally store in Supabase
+        if SUPABASE_AVAILABLE:
+            try:
+                supabase.table("feedback_log").insert({
+                    "user_input": user_input[:500],
+                    "response": result[:500],
+                    "language": language,
+                    "timestamp": datetime.now().isoformat()
+                }).execute()
+            except Exception:
+                pass
+        return result
     except Exception as e:
         return texts["ai_error"].format(str(e))
 
@@ -302,7 +354,6 @@ with tab2:
                                    value='{"resourceType":"Patient","birthDate":"1990-03-15"}')
     if st.button(texts["run_button"]):
         try:
-            import json
             data = json.loads(user_input_data)
             birth_date_str = data.get("birthDate")
             if not birth_date_str:
@@ -326,6 +377,8 @@ with tab2:
 # --- Tab 3: AI Coach ---
 with tab3:
     st.markdown(f"### 🤖 {texts['ai_tab']}")
+    if not GROQ_AVAILABLE:
+        st.info("ℹ️ **Fallback Mode** – No Groq API key found. The feedback below is a generic template. To get real AI-powered coaching, add your Groq API key to the secrets.")
     user_code = st.text_area(texts["hint_placeholder"], height=250,
                              placeholder='Example: def calculate_age(fhir_json):\n    import json, datetime\n    data = json.loads(fhir_json)\n    birth = datetime.datetime.strptime(data["birthDate"], "%Y-%m-%d")\n    ...')
     if st.button(texts["hint_button"]):
